@@ -1,11 +1,36 @@
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 from sqlalchemy.exc import ProgrammingError, OperationalError
-from database.base import engine, Base
+from config import *
+from database.base import engine, Base, SessionLocal
 import logging
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Создаём отдельный engine для подключения к postgres (без указания конкретной БД)
+db_url_without_db = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}"
+# db_url_without_db = str(engine.url).rsplit("/", 1)[0]  # Убираем имя БД
+temp_engine = create_engine(db_url_without_db, isolation_level="AUTOCOMMIT")
+
+
+def create_database():
+    """Создаёт базу данных, если она не существует."""
+    try:
+        with temp_engine.connect() as conn:
+            result = conn.execute(
+                text(f"S"
+                     f"ELECT 1 FROM pg_database WHERE datname = '{DB_NAME}'")
+            )
+            exists = result.fetchone()
+            if not exists:
+                conn.execute(text(f'CREATE DATABASE "{DB_NAME}"'))
+                logger.info(f"✅ База данных '{DB_NAME}' успешно создана.")
+            else:
+                logger.info(f"ℹ️ База данных '{DB_NAME}' уже существует.")
+    except Exception as e:
+        logger.error(f"❌ Ошибка при создании базы данных: {e}")
+        raise
 
 
 def check_connection():
@@ -22,17 +47,17 @@ def check_connection():
 
 def init_db():
     """
-    Инициализация базы данных: проверка подключения и создание таблиц.
+    Инициализация базы данных: создание БД (если нет), проверка подключения и создание таблиц.
     """
     logger.info("🚀 Начинается инициализация базы данных...")
 
-    # Проверяем подключение
+    create_database()  # Создаём БД, если её нет
+
     if not check_connection():
         logger.error("⛔ Остановка инициализации из-за ошибки подключения.")
         return
 
     try:
-        # Создаём все таблицы, если они ещё не существуют
         Base.metadata.create_all(bind=engine)
         logger.info("✅ Все таблицы успешно созданы или уже существуют.")
     except Exception as e:

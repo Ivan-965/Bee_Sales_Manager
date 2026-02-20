@@ -11,8 +11,8 @@ def main_menu_kb():
     return builder.as_markup(resize_keyboard=True)
 
 
-def back_button_kb():
-    """Клавиатура с одной кнопкой 'Назад'"""
+def menu_main_kb():
+    """Клавиатура с одной кнопкой 'Главное меню🏠'"""
     builder = ReplyKeyboardBuilder()
-    builder.add(KeyboardButton(text="Назад🔙"))
+    builder.add(KeyboardButton(text="Главное меню🏠"))
     return builder.as_markup(resize_keyboard=True)
