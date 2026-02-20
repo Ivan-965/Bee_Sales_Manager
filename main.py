@@ -1,21 +1,22 @@
-
 import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from config import config
+
+from bot_utils.load_admin_ids import load_admin_ids
+from config import BOT_TOKEN
 from handlers.h01_start import router as start_router
 
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO if not config.DEBUG else logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+ADMIN_IDS = load_admin_ids()
 
 async def main():
     """Точка входа в приложение."""
     # Создаем объект бота
-    bot = Bot(token=config.BOT_TOKEN)
+    bot = Bot(token=BOT_TOKEN)
 
     # Создаем диспетчер
     dp = Dispatcher()
@@ -23,7 +24,7 @@ async def main():
     # Подключаем роутер с командой /start
     dp.include_router(start_router)
 
-    logger.info("Бот запущен. Администраторы: %s", config.ADMIN_IDS)
+    logger.info("Бот запущен. Администраторы: %s", ADMIN_IDS)
 
     try:
         await dp.start_polling(bot)

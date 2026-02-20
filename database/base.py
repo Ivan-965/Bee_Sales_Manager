@@ -1,5 +1,6 @@
 import os
 import re
+from config import *
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -16,25 +17,24 @@ def clean_value(value: str) -> str:
     return value
 
 
-# 1. Загрузка и очистка конфиденциальных данных из переменных окружения
-DB_USER = clean_value(os.getenv("DB_USER", "postgres"))
-DB_PASSWORD = clean_value(os.getenv("DB_PASSWORD", "password"))
-DB_HOST = clean_value(os.getenv("DB_HOST", "localhost"))
-DB_PORT = clean_value(os.getenv("DB_PORT", "5432"))
-DB_NAME = clean_value(os.getenv("DB_NAME", "my_db"))
+# DB_USER = clean_value(DB_USER)
+DB_PASSWORD = clean_value(os.getenv("DB_PASSWORD"))
+DB_HOST = clean_value(os.getenv("DB_HOST"))
+DB_PORT = clean_value(os.getenv("DB_PORT"))
 
-# 2. Формирование строки подключения (DSN)
+DB_NAME = clean_value(os.getenv("DB_NAME"))
+
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# 3. Создание движка SQLAlchemy
+# Создание движка SQLAlchemy
 engine = create_engine(
     DATABASE_URL,
-    echo=True,  # Вывод SQL-запросов (отключить в продакшене)
+    echo=True,
     pool_pre_ping=True,
 )
 
-# 4. Фабрика сессий
+# Фабрика сессий
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# 5. Базовый класс для моделей
+# Базовый класс для моделей
 Base = declarative_base()
