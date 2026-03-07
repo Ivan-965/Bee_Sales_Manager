@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 
 from bot_utils.load_admin_ids import load_admin_ids
 from config import BOT_TOKEN
-from handlers.h01_start import router as start_router
+from handlers import h01_start, h02_make_order
 
 
 # Настройка логирования
@@ -22,7 +22,8 @@ async def main():
     dp = Dispatcher()
 
     # Подключаем роутер с командой /start
-    dp.include_router(start_router)
+    dp.include_router(h01_start.router)
+    dp.include_router(h02_make_order.router)
 
     logger.info("Бот запущен. Администраторы: %s", ADMIN_IDS)
 

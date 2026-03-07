@@ -11,7 +11,7 @@ def main_menu_kb():
     return builder.as_markup(resize_keyboard=True)
 
 
-def menu_main_kb():
+def to_menu_main_kb():
     """Клавиатура с одной кнопкой 'Главное меню🏠'"""
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(text="Главное меню🏠"))
